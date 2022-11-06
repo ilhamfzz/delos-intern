@@ -1,6 +1,9 @@
 package helper
 
-import "delos-intern/model"
+import (
+	"delos-intern/model"
+	"fmt"
+)
 
 func IsFarmIdExist(id uint, ids []model.Farm) bool {
 	for _, v := range ids {
@@ -46,4 +49,10 @@ func GetPondsByFarmId(farmId uint, ponds []model.Pond) []model.Pond {
 		}
 	}
 	return pondsByFarmId
+}
+
+func CreateUnnamedFarm(id uint) model.Farm {
+	return model.Farm{
+		Name: "Unnamed Farm " + fmt.Sprint(id),
+	}
 }

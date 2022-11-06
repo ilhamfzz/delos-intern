@@ -10,43 +10,47 @@ import (
 )
 
 func (s *Service) CreatePond(c echo.Context, pond model.Pond_Binding) (model.Pond, error) {
+	var flag bool = false
 	pondModels, err := s.GetPonds(c)
 	if err != nil {
-		return model.Pond{}, errors.New("failed to check ponds")
+		flag = true
 	}
 
-	if nameFound := helper.IsPondNameExist(pond.Name, pondModels); nameFound {
-		return model.Pond{}, errors.New("pond name already exist")
+	idFound := helper.IsPondNameExist(pond.Name, pondModels)
+	if !idFound {
+		flag = true
 	}
 
-	var farmModels []model.Farm
-	if err := s.connection.Find(&farmModels).Error; err != nil {
-		return model.Pond{}, errors.New("failed to check farms")
-	}
-	if pond.FarmID != 0 || pond.FarmID > farmModels[len(farmModels)-1].ID {
-		var farm model.Farm
-		if idFound := helper.IsFarmIdExist(pond.FarmID, farmModels); idFound {
-			farm = model.Farm{
-				Name:      "Unnamed Farm" + fmt.Sprint(pond.FarmID),
+	if flag {
+		pondModel := model.Pond{
+			Name:   pond.Name,
+			FarmID: pond.FarmID,
+		}
+
+		farmModels, err := s.GetFarms(c)
+		if err != nil {
+			return model.Pond{}, errors.New("farm not found")
+		}
+		idFound := helper.IsFarmIdExist(pond.FarmID, farmModels)
+		if !idFound {
+			farmModels := model.Farm{
+				Name: "Unnamed Farm " + fmt.Sprint(pond.FarmID),
 			}
+			err = s.connection.Create(&farmModels).Error
+			if err != nil {
+				return model.Pond{}, errors.New("failed to create farm")
+			}
+			pondModel.FarmID = farmModels.ID
 		}
 
-		if err := s.connection.Save(&farm).Error; err != nil {
-			return model.Pond{}, errors.New("failed to create farm")
+		err = s.connection.Create(&pondModel).Error
+		if err != nil {
+			return model.Pond{}, errors.New("failed to create pond")
 		}
+		return pondModel, nil
 	} else {
-		return model.Pond{}, errors.New("farm id not unique")
+		return model.Pond{}, errors.New("pond already exist")
 	}
-
-	pondModel := model.Pond{
-		Name:   pond.Name,
-		FarmID: pond.FarmID,
-	}
-	if err := s.connection.Save(&pondModel).Error; err != nil {
-		return model.Pond{}, errors.New("failed to create pond, please input valid farm id")
-	}
-
-	return pondModel, nil
 }
 
 func (s *Service) UpdatePond(c echo.Context, id int, pond model.Pond_Binding) (model.Pond, error) {
@@ -65,7 +69,7 @@ func (s *Service) UpdatePond(c echo.Context, id int, pond model.Pond_Binding) (m
 		if idFound := helper.IsFarmIdExist(pond.FarmID, farmModels); !idFound {
 			// if farm not found, then create new farm
 			farm := model.Farm{
-				Name:      "Unnamed Farm",
+				Name: "Unnamed Farm",
 			}
 			err = s.connection.Create(&farm).Error
 			if err != nil {

@@ -27,7 +27,7 @@ func CreateFarm(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.BuildErrorResponse("Failed to create farm", err))
 	}
-	return c.JSON(http.StatusCreated, dto.BuildResponse("Successfully created farm", result))
+	return c.JSON(http.StatusCreated, dto.BuildResponse("Successfully create farm", result))
 }
 
 func UpdateFarm(c echo.Context) error {

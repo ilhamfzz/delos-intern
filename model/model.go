@@ -13,7 +13,7 @@ type Farm struct {
 type Pond struct {
 	gorm.Model
 	Name   string `json:"name" gorm:"not null"`
-	FarmID uint   `json:"farm_id"`
+	FarmID uint   `json:"farm_id" gorm:"not null"`
 }
 
 type Telemetry struct {

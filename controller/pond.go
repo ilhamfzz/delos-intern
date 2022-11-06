@@ -26,7 +26,7 @@ func CreatePond(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, dto.BuildErrorResponse("Failed to create pond", err))
 	}
-	return c.JSON(http.StatusCreated, dto.BuildResponse("Successfully created pond", result))
+	return c.JSON(http.StatusCreated, dto.BuildResponse("Successfully create pond", result))
 }
 
 func UpdatePond(c echo.Context) error {

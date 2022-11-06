@@ -25,7 +25,7 @@ func (s *Service) CreateFarm(c echo.Context, farm model.Farm_Binding) (model.Far
 	}
 
 	farmModel = model.Farm{
-		Name:      farm.Name,
+		Name: farm.Name,
 	}
 
 	err = s.connection.Create(&farmModel).Error
@@ -45,7 +45,7 @@ func (s *Service) UpdateFarm(c echo.Context, id int, farm model.Farm_Binding) (m
 		if len(farmModels) == 0 || uint(id) > farmModels[len(farmModels)-1].ID {
 			// if no registered farm or make sure id is not already soft deleted
 			farmModel = model.Farm{
-				Name:      farm.Name,
+				Name: farm.Name,
 			}
 		} else { // if id is already soft deleted
 			return model.Farm{
